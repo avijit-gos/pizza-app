@@ -354,7 +354,7 @@
 .item_card {
   border: 1px solid rgb(210, 210, 210);
   width: 100%;
-  height: autopx;
+  height: 330px;
   max-width: 330px;
   margin: 5px;
   border-radius: 5px;

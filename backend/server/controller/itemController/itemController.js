@@ -8,6 +8,9 @@ const {
   updateSingleItem,
   deleteSingleItem,
   fetchTypeOfItems,
+  addItemToCart,
+  fetchItemToCart,
+  removeItemToCart,
 } = require("../../query/itemQuery/itemQuery");
 const { create } = require("../../model/itemModal/item");
 class ItemController {
@@ -127,6 +130,55 @@ class ItemController {
         }
         try {
           return res.status(200).json(item);
+        } catch (error) {
+          throw createError.InternalServerError(error.message);
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addToCart(req, res, next) {
+    try {
+      if (!req.params.id) {
+        throw createError.Conflict("Item id is not present");
+      } else {
+        const result = await addItemToCart(req.params.id, req.user._id);
+        try {
+          return res
+            .status(201)
+            .json({ msg: "Item added in cart", item: result });
+        } catch (error) {
+          throw createError.InternalServerError(error.message);
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchCartItem(req, res, next) {
+    try {
+      const result = await fetchItemToCart(req.user._id);
+      try {
+        return res.status(201).json({ items: result });
+      } catch (error) {
+        throw createError.InternalServerError(error.message);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async removeToCart(req, res, next) {
+    try {
+      if (!req.params.id) {
+        throw createError.Conflict("Item id is not present");
+      } else {
+        const result = await removeItemToCart(req.params.id);
+        try {
+          return res.status(201).json({ msg: "Item remove from cart" });
         } catch (error) {
           throw createError.InternalServerError(error.message);
         }
