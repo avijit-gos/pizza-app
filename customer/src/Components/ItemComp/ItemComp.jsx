@@ -8,14 +8,11 @@ import {
   MenuList,
   MenuItem,
   Button,
+  Spinner,
 } from "@chakra-ui/react";
 import React from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import { FiMoreHorizontal } from "react-icons/fi";
-import ModalComp from "../ModalComp/ModalComp";
 import AuthButton from "../ButtonComp/AuthButton";
-import InputComp from "../InputComp/InputComp";
-import TextareaComp from "../InputComp/TextareaComp";
 import axios from "axios";
 import { GlobalContext } from "../../Context/Context";
 
@@ -33,8 +30,27 @@ const ItemComp = ({ item }) => {
   const [itemId, setItemId] = React.useState("");
 
   const handleAddToCart = (item) => {
-    setCartItems((prev) => [...prev, item]);
-    setCartCount((prev) => prev + 1);
+    setIsLoading(true);
+    let config = {
+      method: "put",
+      maxBodyLength: Infinity,
+      url: `${process.env.REACT_APP_BASE_URL}api/item/cart/${item._id}`,
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+      },
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        setIsLoading(false);
+        setCartItems((prev) => [...prev, item]);
+        setCartCount((prev) => prev + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -49,10 +65,16 @@ const ItemComp = ({ item }) => {
 
       <Box className='card_description'>{description}</Box>
 
-      <Button className='add_to_cart' onClick={() => handleAddToCart(item)}>
-        <span className='btn_text'>Add to cart</span>
-        <span className='item_price'>₹ {price}</span>
-      </Button>
+      {isLoading ? (
+        <Button className='loading_add_to_cart'>
+          <Spinner />
+        </Button>
+      ) : (
+        <Button className='add_to_cart' onClick={() => handleAddToCart(item)}>
+          <span className='btn_text'>Add to cart</span>
+          <span className='item_price'>₹ {price}</span>
+        </Button>
+      )}
     </Box>
   );
 };

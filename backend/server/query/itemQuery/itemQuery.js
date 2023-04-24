@@ -3,6 +3,7 @@ var createError = require("http-errors");
 const { uploadImage } = require("../../helper/helper");
 const Item = require("../../model/itemModal/item");
 const mongoose = require("mongoose");
+const Cart = require("../../model/cartModel/cartModel");
 
 class ItemQuery {
   constructor() {}
@@ -106,6 +107,38 @@ class ItemQuery {
       } catch (error) {
         throw createError.InternalServerError(error.message);
       }
+    } catch (error) {
+      throw createError.InternalServerError(error.message);
+    }
+  }
+
+  async addItemToCart(id, userId) {
+    const cartItem = Cart({
+      _id: new mongoose.Types.ObjectId(),
+      user: userId,
+      item: id,
+    });
+    const data = await cartItem.save();
+    try {
+      return data;
+    } catch (error) {
+      throw createError.InternalServerError(error.message);
+    }
+  }
+
+  async fetchItemToCart(userId) {
+    const data = await Cart.find({ user: userId }).populate("item");
+    try {
+      return data;
+    } catch (error) {
+      throw createError.InternalServerError(error.message);
+    }
+  }
+
+  async removeItemToCart(id) {
+    const data = await Cart.findByIdAndDelete(id);
+    try {
+      return data;
     } catch (error) {
       throw createError.InternalServerError(error.message);
     }
