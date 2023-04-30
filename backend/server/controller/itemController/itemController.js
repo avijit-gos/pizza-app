@@ -11,6 +11,9 @@ const {
   addItemToCart,
   fetchItemToCart,
   removeItemToCart,
+  addRatingToProduct,
+  createAndSaveOrder,
+  fetchOrderDetails,
 } = require("../../query/itemQuery/itemQuery");
 const { create } = require("../../model/itemModal/item");
 class ItemController {
@@ -182,6 +185,54 @@ class ItemController {
         } catch (error) {
           throw createError.InternalServerError(error.message);
         }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async addToRating(req, res, next) {
+    try {
+      if (!req.params.id || !req.query.type) {
+        throw createError.BadRequest("Invalid request");
+      } else {
+        const result = await addRatingToProduct(
+          req.params.id,
+          req.query.type,
+          req.user._id
+        );
+        console.log(result);
+        return res.status(200).json(result);
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createNewOrder(req, res, next) {
+    try {
+      if (!req.body.details.trim()) {
+        throw createError.BadRequest("Invalid format");
+      } else {
+        const result = await createAndSaveOrder(req.body.details, req.user._id);
+        try {
+          return res.status(201).json(result);
+        } catch (error) {
+          throw createError.BadRequest(result);
+        }
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async fetchOrders(req, res, next) {
+    try {
+      const result = await fetchOrderDetails();
+      try {
+        return res.status(200).json(result);
+      } catch (error) {
+        throw createError.BadRequest(error.message);
       }
     } catch (error) {
       next(error);

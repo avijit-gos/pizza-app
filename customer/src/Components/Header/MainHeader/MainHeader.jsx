@@ -17,14 +17,19 @@ import { RiMenuFill } from "react-icons/ri";
 import { GlobalContext } from "../../../Context/Context";
 import DrawerComp from "../../DrawerComp/DrawerComp";
 import { useNavigate } from "react-router-dom";
+import { BiArrowBack } from "react-icons/bi";
 
-const MainHeader = () => {
+const MainHeader = ({ pageTitle }) => {
   const navigate = useNavigate();
-  const { cartCount } = GlobalContext();
+  const { cartCount, pageType } = GlobalContext();
   const [openDrawr, setOpenDrawer] = React.useState(false);
 
   const handleCloseDrawer = () => {
     setOpenDrawer(false);
+  };
+
+  const backToPage = () => {
+    navigate(-1);
   };
   return (
     <Box className='main_navbar'>
@@ -33,10 +38,17 @@ const MainHeader = () => {
         <DrawerComp isOpen={openDrawr} onClose={handleCloseDrawer} />
       )}
       {/* App Info section */}
-      <Box className='app_info'>
-        <Img src={Logo} className='logo_image' />
-        <span className='app_name'>Fresh</span>
-      </Box>
+      {pageType === "home" ? (
+        <Box className='app_info'>
+          <Img src={Logo} className='logo_image' />
+          <span className='app_name'>Fresh</span>
+        </Box>
+      ) : (
+        <Button className='back_btn' onClick={backToPage}>
+          <BiArrowBack />
+          <span className='btn_text'>{pageTitle}</span>
+        </Button>
+      )}
 
       {/* Others section  */}
       <Box className='main_nav_others_box'>
@@ -56,7 +68,11 @@ const MainHeader = () => {
             <Avatar src='' className='avatar_icon' />
           </MenuButton>
           <MenuList>
-            <MenuItem className='navbar_menu_item'>Wishlists</MenuItem>
+            <MenuItem
+              className='navbar_menu_item'
+              onClick={() => navigate("/wishlist")}>
+              Wishlists
+            </MenuItem>
             <MenuItem className='navbar_menu_item'>My orders</MenuItem>
             <MenuItem className='navbar_menu_item logout'>Logout</MenuItem>
           </MenuList>

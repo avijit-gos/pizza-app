@@ -9,8 +9,9 @@ const UserSchema = mongoose.Schema(
     email: { type: String, trim: true, unique: true, index: true },
     password: { type: String },
     role: { type: String, default: "Customer" },
+    wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: "item" }],
   },
-  { timestamp: true }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("User", UserSchema);

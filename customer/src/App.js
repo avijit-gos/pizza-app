@@ -9,6 +9,9 @@ import Pizzas from "./Pages/Home/HomeRoutes/Pizzas";
 import Desserts from "./Pages/Home/HomeRoutes/Desserts";
 import Drinks from "./Pages/Home/HomeRoutes/Drinks";
 import Cart from "./Pages/Cart/Cart";
+import Confirmation from "./Pages/Confirmation/Confirmation";
+import Wishlist from "./Pages/WishList/Wishlist";
+import FullItem from "./Pages/FullItem/FullItem";
 
 function App() {
   return (
@@ -60,6 +63,35 @@ function App() {
           element={
             <ProtectedRoute>
               <Cart />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Confirmation page */}
+        <Route
+          path='/confirmation'
+          exact
+          element={
+            <ProtectedRoute>
+              <Confirmation />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/wishlist'
+          exact
+          element={
+            <ProtectedRoute>
+              <Wishlist />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='full/item/:id'
+          exact
+          element={
+            <ProtectedRoute>
+              <FullItem />
             </ProtectedRoute>
           }
         />
