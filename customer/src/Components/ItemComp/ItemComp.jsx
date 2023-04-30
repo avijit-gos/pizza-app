@@ -12,24 +12,25 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import AuthButton from "../ButtonComp/AuthButton";
 import axios from "axios";
 import { GlobalContext } from "../../Context/Context";
+import { useNavigate } from "react-router-dom";
 
 const ItemComp = ({ item }) => {
+  const navigate = useNavigate();
   const { items, setItems, cartItems, setCartItems, cartCount, setCartCount } =
     GlobalContext();
   const [image, setImage] = React.useState(item.image);
   const [title, setTitle] = React.useState(item.title);
   const [description, setDescription] = React.useState(item.description);
   const [price, setPrice] = React.useState(item.price);
-  const [openDeleteModal, setOpenDeleteModal] = React.useState(false);
-  const [openEditModal, setOpenEditModal] = React.useState(false);
-  const [isDisable, setIsDisable] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [itemId, setItemId] = React.useState("");
+  const [wishlist, setWishlist] = React.useState(
+    JSON.parse(localStorage.getItem("user")).wishlist
+  );
 
   const handleAddToCart = (item) => {
+    // console.log(item);
     setIsLoading(true);
     let config = {
       method: "put",
@@ -43,10 +44,38 @@ const ItemComp = ({ item }) => {
     axios
       .request(config)
       .then((response) => {
-        console.log(JSON.stringify(response.data));
+        // console.log(JSON.stringify(response.data));
         setIsLoading(false);
-        setCartItems((prev) => [...prev, item]);
+        setCartItems((prev) => [...prev, response.data]);
         setCartCount((prev) => prev + 1);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+
+  const addToWishList = (data) => {
+    if (wishlist.includes(data._id)) {
+      const temp = wishlist;
+      const result = temp.filter((itemId) => itemId !== data._id);
+      setWishlist(result);
+    } else {
+      setWishlist((prev) => [...prev, data._id]);
+    }
+    let config = {
+      method: "put",
+      maxBodyLength: Infinity,
+      url: `${process.env.REACT_APP_BASE_URL}api/user/add/wishlist/${data._id}`,
+      headers: {
+        "x-access-token": localStorage.getItem("token"),
+      },
+    };
+
+    axios
+      .request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data));
+        localStorage.setItem("user", JSON.stringify(response.data.updatedUser));
       })
       .catch((error) => {
         console.log(error);
@@ -55,15 +84,31 @@ const ItemComp = ({ item }) => {
 
   return (
     <Box className='item_card'>
-      <Button className='menu_btn'>
-        <AiOutlineHeart className='menu_icon' />
+      <Button className='menu_btn' onClick={() => addToWishList(item)}>
+        <>
+          {wishlist.includes(item._id) ? (
+            <AiFillHeart className='menu_icon menu_icon_active' />
+          ) : (
+            <AiOutlineHeart className='menu_icon' />
+          )}
+        </>
       </Button>
-      <Box className='card_img_section'>
+      <Box
+        className='card_img_section'
+        onClick={() => navigate(`/full/item/${item._id}`)}>
         <Img src={image} className='card_image' />
       </Box>
-      <Box className='card_title'>{title}</Box>
+      <Box
+        className='card_title'
+        onClick={() => navigate(`/full/item/${item._id}`)}>
+        {title}
+      </Box>
 
-      <Box className='card_description'>{description}</Box>
+      <Box
+        className='card_description'
+        onClick={() => navigate(`/full/item/${item._id}`)}>
+        {description}
+      </Box>
 
       {isLoading ? (
         <Button className='loading_add_to_cart'>

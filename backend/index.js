@@ -28,6 +28,13 @@ app.use("/api", require("./server/routes/publicRoutes/publicRoute"));
 
 // *** Item routes
 app.use(
+  "/api/user",
+  Authentication,
+  require("./server/routes/userRoute/userRoute")
+);
+
+// *** Item routes
+app.use(
   "/api/item",
   Authentication,
   require("./server/routes/itemRoute/itemRoute")

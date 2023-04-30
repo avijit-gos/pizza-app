@@ -9,18 +9,22 @@ import SkeletonLoader from "../../Components/Loaders/SkeletonLoader/SkeletonLoad
 import ModalComp from "../../Components/ModalComp/ModalComp";
 import CartItemComp from "../../Components/ItemComp/CartItemComp";
 import { calculateTotlaPrice } from "../../Utils/calculateTotalPrice";
+import { useNavigate } from "react-router-dom";
+import Address from "../../Components/ConfirmationComp/Address";
+import Payment from "../../Components/ConfirmationComp/Payment";
+import Placed from "../../Components/ConfirmationComp/Placed";
 
 const Cart = () => {
-  const { setPageType, setCartItems, setCartCount, cartItems, cartCount } =
-    GlobalContext();
+  const navigate = useNavigate();
+  const { setPageType, setCartItems, cartItems } = GlobalContext();
   const [isLoading, setIsLoading] = React.useState(false);
   const [totalPrice, setTotalPrice] = React.useState(0);
+  const [details, setDetails] = React.useState({});
   const [openModal, setOpenModal] = React.useState(false);
-  const [stepsCount, setStepCount] = React.useState(0);
-  const [steps, setSteps] = React.useState([]);
+  const [stage, setStatge] = React.useState("address");
 
   React.useLayoutEffect(() => {
-    setPageType("home");
+    setPageType("cart");
   }, []);
 
   React.useEffect(() => {
@@ -37,8 +41,24 @@ const Cart = () => {
     axios
       .request(config)
       .then((response) => {
-        console.log(response.data);
+        console.log(response.data.items);
         setCartItems(response.data.items);
+        var items = [];
+        var cardItemsId = [];
+        var totalPrice = 0;
+        for (let i = 0; i < response.data.items.length; i++) {
+          items.push(response.data.items[i]._id);
+          console.log(response.data.items[i]._id);
+          cardItemsId.push(response.data.items[i]._id);
+          totalPrice += response.data.items[i].item.price;
+        }
+        console.log(totalPrice);
+        setDetails({
+          ...details,
+          price: totalPrice,
+          items: JSON.stringify(items),
+          cardItemsId: JSON.stringify(cardItemsId),
+        });
         setIsLoading(false);
       })
       .catch((error) => {
@@ -55,58 +75,65 @@ const Cart = () => {
     setOpenModal(false);
   };
 
-  const lists = [
-    { name: "Address", value: 1 },
-    { name: "Payment", value: 2 },
-    { name: "Confirm", value: 3 },
-  ];
-
-  const handleNextStep = (data) => {
-    setStepCount((data.value - 1) * 45);
-    setSteps((prev) => [...prev, data.name]);
-  };
-
   return (
-    <Layout>
+    <Layout pageTitle='Cart'>
       <Box className='cart_section'>
+        {/* Confirmation modal for plaing the order */}
         {openModal && (
           <ModalComp
-            isOpen={openModal}
             onClose={onClose}
+            isOpen={openModal}
             title={
-              <Box className='stepper_form_modal_title_section'>
-                <Box
-                  className='progress_status'
-                  style={{ width: `${stepsCount}%` }}></Box>
-                {(lists || []).length > 0 && (
-                  <Box className='step_count_section'>
-                    {lists.map((data) => (
-                      <Box className='step_count' key={data.value}>
-                        <Box
-                          className={
-                            steps.includes(data.name)
-                              ? "step_number_count complete_step_number_count"
-                              : "step_number_count"
-                          }></Box>
-                        <Box className='step_title'>{data.name}</Box>
-                      </Box>
-                    ))}
+              <>
+                {stage === "address" ? (
+                  <Box className='confirmation_modal_title'>
+                    Confirm address
                   </Box>
+                ) : (
+                  <>
+                    {stage === "payment" ? (
+                      <Box className='confirmation_modal_title'>
+                        Confirm payment
+                      </Box>
+                    ) : (
+                      <>
+                        {stage === "confirm" ? (
+                          <Box className='confirmation_modal_title'>
+                            Confirm order
+                          </Box>
+                        ) : null}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            }
+            body={
+              <Box>
+                {stage === "address" ? (
+                  <Address
+                    setStatge={setStatge}
+                    setDetails={setDetails}
+                    details={details}
+                  />
+                ) : (
+                  <>
+                    {stage === "payment" ? (
+                      <Payment
+                        setStatge={setStatge}
+                        setDetails={setDetails}
+                        details={details}
+                      />
+                    ) : (
+                      <Placed
+                        setStatge={setStatge}
+                        setDetails={setDetails}
+                        details={details}
+                      />
+                    )}
+                  </>
                 )}
               </Box>
-            }
-            footer={
-              (lists || []).length > 0 && (
-                <>
-                  {lists.map((data) => (
-                    <Button
-                      key={data.value}
-                      onClick={() => handleNextStep(data)}>
-                      {data.name}
-                    </Button>
-                  ))}
-                </>
-              )
             }
           />
         )}

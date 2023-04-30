@@ -36,6 +36,46 @@
   height: 10px;
   border-radius: 15px;
 }
+.full_post_skeleton_loader_page {
+  width: 100%;
+  height: 92.5vh;
+  padding: 7px;
+  text-align: center;
+}
+.full_item_title_loader {
+  width: 500px;
+  max-width: 100%;
+  height: 30px;
+  max-width: 100%;
+  border-radius: 12px;
+  margin: 5px auto;
+}
+.full_item_img_loader {
+  width: 350px;
+  height: 250px;
+  margin: 12px;
+  max-width: 100%;
+  border-radius: 10px;
+  margin: 5px auto;
+}
+.full_item_description_loader_section {
+  margin: 7px auto;
+  width: 500px;
+  max-width: 100%;
+  padding: 7px;
+}
+.full_item_description_loader_section_one {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+.full_item_description_loader_section_last {
+  width: 50%;
+  height: 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
 .skeleton {
   animation: skeleton-loading 1s linear infinite alternate;
 }
